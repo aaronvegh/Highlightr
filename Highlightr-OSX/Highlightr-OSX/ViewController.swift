@@ -1,0 +1,44 @@
+//
+//  ViewController.swift
+//  Highlightr-OSX
+//
+//  Created by Aaron Vegh on 2016-06-01.
+//  Copyright © 2016 Aaron Vegh. All rights reserved.
+//
+
+import Cocoa
+
+class ViewController: NSViewController {
+
+    @IBOutlet var codeEditorView: NSTextView!
+    var textStorage = CodeAttributedString()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        guard let sampleDocPath = NSBundle(forClass: self.dynamicType).pathForResource("swift-sample", ofType: "txt") else { return }
+        let codeString = try! NSString(contentsOfFile: sampleDocPath, encoding: NSUTF8StringEncoding)
+
+        textStorage.setAttributedString(NSAttributedString(string: codeString as String))
+        textStorage.language = "Swift"
+        textStorage.highlightr.setTheme("dark")
+        textStorage.highlightr.theme.codeFont = NSFont(name: "Hack-Regular", size: 14)
+
+        let bgColor = textStorage.highlightr.theme.themeBackgroundColor
+        if let colorSpaceColor = bgColor.colorUsingColorSpaceName(NSCalibratedRGBColorSpace) {
+            var r: CGFloat = 0.0
+            var g: CGFloat = 0.0
+            var b: CGFloat = 0.0
+            var a: CGFloat = 1.0
+            colorSpaceColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+            codeEditorView.backgroundColor = colorSpaceColor
+            codeEditorView.insertionPointColor = NSColor(red: 1 - r, green: 1 - g, blue: 1 - b, alpha: 1.0)
+        }
+        codeEditorView.automaticSpellingCorrectionEnabled = false
+
+        codeEditorView.layoutManager?.replaceTextStorage(textStorage)
+
+    }
+
+}
+
